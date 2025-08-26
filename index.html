@@ -31,6 +31,31 @@
   .wrap{max-width:980px;margin:0 auto 100px;padding:0 16px}
 
   /* Tabs */
+
+  /* Fly-to-cart image */
+
+.addBtn.flash {
+  background-color: #22c55e !important;
+  color: #fff !important;
+  box-shadow: 0 0 10px rgba(34,197,94,0.8);
+  transition: all 0.3s;
+}
+
+  .fly-img{
+    position:fixed;
+    z-index:9999;
+    pointer-events:none;
+    border-radius:10px;
+    box-shadow:0 8px 30px rgba(0,0,0,.35);
+    transform-origin:center center;
+  }
+
+  /* Category Bar */
+  .catbar{position:sticky;top:0;z-index:10;display:flex;gap:10px;overflow-x:auto;padding:8px;background:#0b0b0b;border:1px solid #1f2937;border-radius:12px;margin:12px 0}
+  .catlink{flex:1;display:inline-block;padding:10px 14px;border-radius:12px;border:1px solid #334155;background:#171717;color:#e5e7eb;font-weight:700;cursor:pointer;white-space:nowrap}
+  .catlink.active{background:#10b981;border-color:#0ea5a3;color:#062c2c}
+  .catTitle{font-size:22px;font-weight:800;margin:24px 6px 8px;color:#e5e7eb}
+
   .tabs{position:sticky;top:0;z-index:5;background:#121212d9;backdrop-filter:blur(6px);border:1px solid #242424;border-radius:12px;padding:6px;display:flex;gap:6px;margin:12px 0;overflow-x:auto}
   .tab{flex:1;text-align:center;padding:10px 12px;border-radius:10px;cursor:pointer;user-select:none;border:1px solid transparent;color:#e5e7eb;white-space:nowrap}
   .tab.active{background:#0f172a;border-color:#253047}
@@ -88,7 +113,7 @@
   .footer-list a{color:#cbd5e1;text-decoration:none}
   .footer-list a:hover{color:#ffffff}
   .footer-note{border-top:1px solid #242424;margin-top:24px;padding-top:16px;font-size:14px;color:#9aa0a6;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .brand-mark{color:var(--accent);font-weight:700}
+  .brand-mark{color:inherit;font-weight:700}
 
   @media(prefers-reduced-motion:reduce){
     *{scroll-behavior:auto!important}
@@ -97,7 +122,6 @@
 </style>
 </head>
 <body>
-  <a class="sr-only" href="#menuGrid">Bỏ qua nội dung đầu trang</a>
   <!-- Banner -->
   <div class="hero" aria-label="Ảnh bìa quán">
     <img src="images/banner.jpg" alt="Phở Gà Quán" onerror="this.src='images/placeholder.jpg'" width="1600" height="320" />
@@ -108,16 +132,19 @@
   </div>
 
   <div class="wrap">
-    <!-- Tabs -->
-    <div class="tabs" id="tabs" role="tablist" aria-label="Danh mục món">
-      <button class="tab active" role="tab" aria-selected="true" data-cat="all">Menu</button>
-      <button class="tab" role="tab" aria-selected="false" data-cat="khai-vi">Khai vị</button>
-      <button class="tab" role="tab" aria-selected="false" data-cat="mon-chinh">Món chính</button>
-      <button class="tab" role="tab" aria-selected="false" data-cat="trang-mieng">Tráng miệng</button>
-      <button class="tab" role="tab" aria-selected="false" data-cat="nuoc-uong">Nước uống</button>
-    </div>
+    <!-- Category Bar -->
+    <nav class="catbar" id="catbar" aria-label="Phân loại món">
+      <button class="catlink active" data-target="khai-vi">Khai vị</button>
+      <button class="catlink" data-target="mon-chinh">Món chính</button>
+      <button class="catlink" data-target="trang-mieng">Tráng miệng</button>
+      <button class="catlink" data-target="nuoc-uong">Nước uống</button>
+    </nav>
 
-    <section class="grid" id="menuGrid" aria-live="polite"></section>
+    <!-- Tabs -->
+    <section id="khai-vi"><h2 class="catTitle">Khai vị</h2><div class="grid" id="grid-kv"></div></section>
+<section id="mon-chinh"><h2 class="catTitle">Món chính</h2><div class="grid" id="grid-mc"></div></section>
+<section id="trang-mieng"><h2 class="catTitle">Tráng miệng</h2><div class="grid" id="grid-tm"></div></section>
+<section id="nuoc-uong"><h2 class="catTitle">Nước uống</h2><div class="grid" id="grid-nu"></div></section>
   </div>
 
   <button class="float-cart" id="openCartBtn" aria-haspopup="dialog" aria-controls="drawer">🛒 Giỏ hàng (<span id="cartCount">0</span>)</button>
@@ -138,9 +165,8 @@
   <div class="totalBox" id="totalBox" aria-live="polite">
     <div class="totalRow"><span>Tạm tính</span><strong id="subtotal">0 ₫</strong></div>
     <div class="totalRow"><span>Phí giao</span><strong id="ship">0 ₫</strong></div>
-    <div class="totalRow" style="font-size:18px"><span>Tổng cộng</span><strong id="grand">0 ₫</strong></div>
-    <label for="orderNote">Ghi chú (tuỳ chọn)</label>
-    <textarea id="orderNote" placeholder="Ví dụ: ít cay, giao 12:30, gọi trước khi tới..."></textarea>
+    <div id="shipNote" style="color:#9aa0a6;font-size:13px;margin:4px 0">Miễn phí giao cho đơn từ 200.000đ</div>
+        <div class="totalRow" style="font-size:18px"><span>Tổng cộng</span><strong id="grand">0 ₫</strong></div>
     <div style="margin-top:10px;display:flex;gap:8px">
       <button class="btn primary" id="checkoutBtn" style="flex:1">Đặt đơn hàng</button>
     </div>
@@ -153,6 +179,7 @@
         <div class="footer-col">
           <h4>Thông tin liên hệ</h4>
           <ul class="footer-list">
+            
             <li>📍 <strong>Địa chỉ:</strong>
               <a href="https://www.google.com/maps?q=Connollystr.+3,+80809+Munich" target="_blank" rel="noopener noreferrer">
                 Connollystr. 3, 80809 Munich
@@ -165,9 +192,9 @@
         <div class="footer-col">
           <h4>Liên kết nhanh</h4>
           <ul class="footer-list">
-            <li><a href="#menuGrid">Menu</a></li>
+            <li><a href="#khai-vi">Menu</a></li>
             <li><a href="#" onclick="document.getElementById('openCartBtn').click();return false;">Giỏ hàng</a></li>
-            <li><a href="#">Chính sách &amp; quyền riêng tư</a></li>
+            <li><a id="privacyLink" href="privacy_policy.html" target="_self" rel="noopener" onclick="window.location.href='privacy_policy.html'; return false;">Chính sách &amp; Quyền riêng tư</a></li>
           </ul>
         </div>
       </div>
@@ -184,73 +211,63 @@
 
   // ===== MENU =====
   const MENU = [
-    // Khai vị
-    {id:'goi-cuon',name:'Gỏi Cuốn',price:35000,cat:'khai-vi',imgLocal:'images/goi-cuon.jpg'},
-    {id:'nem-ran',name:'Nem Rán',price:40000,cat:'khai-vi',imgLocal:'images/nem-ran.jpg'},
-    {id:'sup-cua',name:'Súp Cua',price:35000,cat:'khai-vi',imgLocal:'images/sup-cua.jpg'},
-    {id:'nom-ga',name:'Nộm Gà',price:42000,cat:'khai-vi',imgLocal:'images/nom-ga.jpg'},
-    {id:'nom-xoai',name:'Nộm Xoài',price:38000,cat:'khai-vi',imgLocal:'images/nom-xoai.jpg'},
-    {id:'banh-trang-tron',name:'Bánh Tráng Trộn',price:35000,cat:'khai-vi',imgLocal:'images/banh-trang-tron.jpg'},
-    {id:'xien-ban',name:'Xiên Bẩn',price:30000,cat:'khai-vi',imgLocal:'images/xien-ban.jpg'},
-
-    // Món chính
-    {id:'pho-ga',name:'Phở Gà',price:40000,cat:'mon-chinh',imgLocal:'images/pho-ga.jpg'},
-    {id:'pho-bo',name:'Phở Bò',price:45000,cat:'mon-chinh',imgLocal:'images/pho-bo.jpg'},
-    {id:'bun-bo-hue',name:'Bún Bò Huế',price:55000,cat:'mon-chinh',imgLocal:'images/bun-bo-hue.jpg'},
-    {id:'bun-rieu-cua',name:'Bún Riêu Cua',price:52000,cat:'mon-chinh',imgLocal:'images/bun-rieu-cua.jpg'},
-    {id:'bun-thang',name:'Bún Thang Hà Nội',price:52000,cat:'mon-chinh',imgLocal:'images/bun-thang.jpg'},
-    {id:'bun-moc',name:'Bún Mọc',price:50000,cat:'mon-chinh',imgLocal:'images/bun-moc.jpg'},
-    {id:'bun-cha-ca',name:'Bún Chả Cá',price:52000,cat:'mon-chinh',imgLocal:'images/bun-cha-ca.jpg'},
-    {id:'bun-mam',name:'Bún Mắm',price:56000,cat:'mon-chinh',imgLocal:'images/bun-mam.jpg'},
-    {id:'bun-thit-nuong',name:'Bún Thịt Nướng',price:52000,cat:'mon-chinh',imgLocal:'images/bun-thit-nuong.jpg'},
-    {id:'bun-cha',name:'Bún Chả',price:50000,cat:'mon-chinh',imgLocal:'images/bun-cha.jpg'},
-    {id:'hu-tieu-nam-vang',name:'Hủ Tiếu Nam Vang',price:52000,cat:'mon-chinh',imgLocal:'images/hu-tieu-nam-vang.jpg'},
-    {id:'hu-tieu-kho',name:'Hủ Tiếu Khô',price:52000,cat:'mon-chinh',imgLocal:'images/hu-tieu-kho.jpg'},
-    {id:'com-tam',name:'Cơm Tấm',price:55000,cat:'mon-chinh',imgLocal:'images/com-tam.jpg'},
-    {id:'com-chien-duong-chau',name:'Cơm Chiên Dương Châu',price:52000,cat:'mon-chinh',imgLocal:'images/com-chien-duong-chau.jpg'},
-    {id:'banh-xeo',name:'Bánh Xèo',price:52000,cat:'mon-chinh',imgLocal:'images/banh-xeo.jpg'},
-    {id:'banh-khot',name:'Bánh Khọt',price:52000,cat:'mon-chinh',imgLocal:'images/banh-khot.jpg'},
-    {id:'banh-cuon',name:'Bánh Cuốn',price:45000,cat:'mon-chinh',imgLocal:'images/banh-cuon.jpg'},
-    {id:'banhmi-db',name:'Bánh mì Đặc Biệt',price:35000,cat:'mon-chinh',imgLocal:'images/banhmi-db.jpg'},
-    {id:'cha-ca-la-vong',name:'Chả Cá Lã Vọng',price:65000,cat:'mon-chinh',imgLocal:'images/cha-ca-la-vong.jpg'},
-    {id:'vit-om-sau',name:'Vịt Om Sấu',price:68000,cat:'mon-chinh',imgLocal:'images/vit-om-sau.jpg'},
-    {id:'canh-muop-dang-nhoi-thit',name:'Canh Mướp Đắng Nhồi Thịt',price:45000,cat:'mon-chinh',imgLocal:'images/canh-muop-dang-nhoi-thit.jpg'},
-    {id:'dau-hu-sot-ca',name:'Đậu Hũ Sốt Cà Chua',price:42000,cat:'mon-chinh',imgLocal:'images/dau-hu-sot-ca.jpg'},
-    {id:'lau-thai',name:'Lẩu Thái',price:150000,cat:'mon-chinh',imgLocal:'images/lau-thai.jpg'},
-    {id:'lau-ca',name:'Lẩu Cá',price:140000,cat:'mon-chinh',imgLocal:'images/lau-ca.jpg'},
-    {id:'lau-nam',name:'Lẩu Nấm',price:130000,cat:'mon-chinh',imgLocal:'images/lau-nam.jpg'},
-
-    // Tráng miệng
-    {id:'che-buoi',name:'Chè Bưởi',price:25000,cat:'trang-mieng',imgLocal:'images/che-buoi.jpg'},
-    {id:'che-thai',name:'Chè Thái',price:28000,cat:'trang-mieng',imgLocal:'images/che-thai.jpg'},
-    {id:'che-thap-cam',name:'Chè Thập Cẩm',price:25000,cat:'trang-mieng',imgLocal:'images/che-thap-cam.jpg'},
-    {id:'che-khuc-bach',name:'Chè Khúc Bạch',price:30000,cat:'trang-mieng',imgLocal:'images/che-khuc-bach.jpg'},
-    {id:'banh-flan',name:'Bánh Flan',price:20000,cat:'trang-mieng',imgLocal:'images/banh-flan.jpg'},
-
-    // Nước uống
-    {id:'tra-sua',name:'Trà Sữa',price:25000,cat:'nuoc-uong',imgLocal:'images/tra-sua.jpg'},
-    {id:'tra-chanh',name:'Trà Chanh',price:18000,cat:'nuoc-uong',imgLocal:'images/tra-chanh.jpg'},
-    {id:'nuoc-chanh',name:'Nước Chanh',price:18000,cat:'nuoc-uong',imgLocal:'images/nuoc-chanh.jpg'},
-    {id:'nuoc-mia',name:'Nước Mía',price:20000,cat:'nuoc-uong',imgLocal:'images/nuoc-mia.jpg'},
-    {id:'sinh-to',name:'Sinh Tố',price:30000,cat:'nuoc-uong',imgLocal:'images/sinh-to.jpg'},
-    {id:'nuoc-trai-cay',name:'Nước Trái Cây',price:22000,cat:'nuoc-uong',imgLocal:'images/nuoc-trai-cay.jpg'},
-    {id:'sua-dau-nanh',name:'Sữa Đậu Nành',price:15000,cat:'nuoc-uong',imgLocal:'images/sua-dau-nanh.jpg'},
-    {id:'sua-bap',name:'Sữa Bắp',price:20000,cat:'nuoc-uong',imgLocal:'images/sua-bap.jpg'},
-    {id:'sua-chua-da',name:'Sữa Chua Đá',price:20000,cat:'nuoc-uong',imgLocal:'images/sua-chua-da.jpg'}
+        {id:'goi-cuon',name:'Gỏi Cuốn',price:35000,cat:'khai-vi',imgLocal:'images/goi-cuon.jpg',desc:'bánh tráng, tôm, thịt, bún, rau sống'},
+    {id:'nem-ran',name:'Nem Rán',price:40000,cat:'khai-vi',imgLocal:'images/nem-ran.jpg',desc:'vỏ bánh, thịt heo, miến, mộc nhĩ'},
+    {id:'sup-cua',name:'Súp Cua',price:35000,cat:'khai-vi',imgLocal:'images/sup-cua.jpg',desc:'cua, nấm, trứng'},
+    {id:'nom-ga',name:'Nộm Gà',price:42000,cat:'khai-vi',imgLocal:'images/nom-ga.jpg',desc:'gà xé, bắp cải, cà rốt, rau răm'},
+    {id:'nom-xoai',name:'Nộm Xoài',price:38000,cat:'khai-vi',imgLocal:'images/nom-xoai.jpg',desc:'xoài xanh, tôm khô, đậu phộng, rau thơm'},
+    {id:'banh-trang-tron',name:'Bánh Tráng Trộn',price:35000,cat:'khai-vi',imgLocal:'images/banh-trang-tron.jpg',desc:'bánh tráng, bò khô, trứng cút, xoài'},
+    {id:'xien-ban',name:'Xiên Bẩn',price:30000,cat:'khai-vi',imgLocal:'images/xien-ban.jpg',desc:'xúc xích, cá viên, bò viên'},
+    {id:'pho-ga',name:'Phở Gà',price:40000,cat:'mon-chinh',imgLocal:'images/pho-ga.jpg',desc:'bánh phở, gà, rau mùi, hành hoa'},
+    {id:'pho-bo',name:'Phở Bò',price:45000,cat:'mon-chinh',imgLocal:'images/pho-bo.jpg',desc:'bánh phở, bò, rau mùi, hành hoa'},
+    {id:'bun-bo-hue',name:'Bún Bò Huế',price:55000,cat:'mon-chinh',imgLocal:'images/bun-bo-hue.jpg',desc:'bún, bò, chả lụa, rau thơm'},
+    {id:'bun-rieu-cua',name:'Bún Riêu Cua',price:52000,cat:'mon-chinh',imgLocal:'images/bun-rieu-cua.jpg',desc:'bún, riêu cua, đậu hũ, cà chua'},
+    {id:'bun-thang',name:'Bún Thang Hà Nội',price:52000,cat:'mon-chinh',imgLocal:'images/bun-thang.jpg',desc:'bún, gà xé, trứng, giò lụa'},
+    {id:'bun-moc',name:'Bún Mọc',price:50000,cat:'mon-chinh',imgLocal:'images/bun-moc.jpg',desc:'bún, mọc (giò), nấm, hành hoa'},
+    {id:'bun-cha-ca',name:'Bún Chả Cá',price:52000,cat:'mon-chinh',imgLocal:'images/bun-cha-ca.jpg',desc:'bún, chả cá, rau sống'},
+    {id:'bun-mam',name:'Bún Mắm',price:56000,cat:'mon-chinh',imgLocal:'images/bun-mam.jpg',desc:'bún, hải sản, rau sống'},
+    {id:'bun-thit-nuong',name:'Bún Thịt Nướng',price:52000,cat:'mon-chinh',imgLocal:'images/bun-thit-nuong.jpg',desc:'bún, thịt nướng, rau sống, đậu phộng'},
+    {id:'bun-cha',name:'Bún Chả',price:50000,cat:'mon-chinh',imgLocal:'images/bun-cha.jpg',desc:'bún, chả thịt nướng, rau sống'},
+    {id:'hu-tieu-nam-vang',name:'Hủ Tiếu Nam Vang',price:52000,cat:'mon-chinh',imgLocal:'images/hu-tieu-nam-vang.jpg',desc:'hủ tiếu, tôm, thịt heo, hẹ'},
+    {id:'hu-tieu-kho',name:'Hủ Tiếu Khô',price:52000,cat:'mon-chinh',imgLocal:'images/hu-tieu-kho.jpg',desc:'hủ tiếu, tôm, thịt heo, rau sống'},
+    {id:'com-tam',name:'Cơm Tấm',price:55000,cat:'mon-chinh',imgLocal:'images/com-tam.jpg',desc:'cơm tấm, sườn nướng, bì, chả'},
+    {id:'com-chien-duong-chau',name:'Cơm Chiên Dương Châu',price:52000,cat:'mon-chinh',imgLocal:'images/com-chien-duong-chau.jpg',desc:'cơm chiên, trứng, tôm, đậu hà lan'},
+    {id:'banh-xeo',name:'Bánh Xèo',price:52000,cat:'mon-chinh',imgLocal:'images/banh-xeo.jpg',desc:'bột bánh, tôm, thịt heo, giá'},
+    {id:'banh-khot',name:'Bánh Khọt',price:52000,cat:'mon-chinh',imgLocal:'images/banh-khot.jpg',desc:'bột bánh, tôm, mỡ hành'},
+    {id:'banh-cuon',name:'Bánh Cuốn',price:45000,cat:'mon-chinh',imgLocal:'images/banh-cuon.jpg',desc:'bánh cuốn, thịt băm, mộc nhĩ, hành phi'},
+    {id:'banhmi-db',name:'Bánh mì Đặc Biệt',price:35000,cat:'mon-chinh',imgLocal:'images/banhmi-db.jpg',desc:'bánh mì, thịt nguội, pate, dưa leo'},
+    {id:'cha-ca-la-vong',name:'Chả Cá Lã Vọng',price:65000,cat:'mon-chinh',imgLocal:'images/cha-ca-la-vong.jpg',desc:'cá, thì là, hành lá, bún'},
+    {id:'vit-om-sau',name:'Vịt Om Sấu',price:68000,cat:'mon-chinh',imgLocal:'images/vit-om-sau.jpg',desc:'vịt, sấu, rau thơm'},
+    {id:'canh-muop-dang-nhoi-thit',name:'Canh Mướp Đắng Nhồi Thịt',price:45000,cat:'mon-chinh',imgLocal:'images/canh-muop-dang-nhoi-thit.jpg',desc:'mướp đắng, thịt heo xay, nấm mèo'},
+    {id:'dau-hu-sot-ca',name:'Đậu Hũ Sốt Cà Chua',price:42000,cat:'mon-chinh',imgLocal:'images/dau-hu-sot-ca.jpg',desc:'đậu hũ, cà chua, hành'},
+    {id:'lau-thai',name:'Lẩu Thái',price:150000,cat:'mon-chinh',imgLocal:'images/lau-thai.jpg',desc:'hải sản, nấm, rau'},
+    {id:'lau-ca',name:'Lẩu Cá',price:140000,cat:'mon-chinh',imgLocal:'images/lau-ca.jpg',desc:'cá, rau, bún'},
+    {id:'lau-nam',name:'Lẩu Nấm',price:130000,cat:'mon-chinh',imgLocal:'images/lau-nam.jpg',desc:'nấm tổng hợp, rau, đậu hũ'},
+    {id:'che-buoi',name:'Chè Bưởi',price:25000,cat:'trang-mieng',imgLocal:'images/che-buoi.jpg',desc:'bưởi, đậu xanh, nước cốt dừa'},
+    {id:'che-thai',name:'Chè Thái',price:28000,cat:'trang-mieng',imgLocal:'images/che-thai.jpg',desc:'thạch, trái cây, sữa'},
+    {id:'che-thap-cam',name:'Chè Thập Cẩm',price:25000,cat:'trang-mieng',imgLocal:'images/che-thap-cam.jpg',desc:'đậu đỏ, đậu xanh, thạch, nước cốt dừa'},
+    {id:'che-khuc-bach',name:'Chè Khúc Bạch',price:30000,cat:'trang-mieng',imgLocal:'images/che-khuc-bach.jpg',desc:'thạch phô mai, nhãn, hạnh nhân lát'},
+    {id:'banh-flan',name:'Bánh Flan',price:20000,cat:'trang-mieng',imgLocal:'images/banh-flan.jpg',desc:'trứng, sữa, caramel'},
+    {id:'tra-sua',name:'Trà Sữa',price:25000,cat:'nuoc-uong',imgLocal:'images/tra-sua.jpg',desc:'trà đen, sữa, trân châu'},
+    {id:'tra-chanh',name:'Trà Chanh',price:18000,cat:'nuoc-uong',imgLocal:'images/tra-chanh.jpg',desc:'trà, chanh, đường'},
+    {id:'nuoc-chanh',name:'Nước Chanh',price:18000,cat:'nuoc-uong',imgLocal:'images/nuoc-chanh.jpg',desc:'chanh, đường, nước'},
+    {id:'nuoc-mia',name:'Nước Mía',price:20000,cat:'nuoc-uong',imgLocal:'images/nuoc-mia.jpg',desc:'mía ép'},
+    {id:'sinh-to',name:'Sinh Tố',price:30000,cat:'nuoc-uong',imgLocal:'images/sinh-to.jpg',desc:'trái cây, sữa, đá'},
+    {id:'nuoc-trai-cay',name:'Nước Trái Cây',price:22000,cat:'nuoc-uong',imgLocal:'images/nuoc-trai-cay.jpg',desc:'trái cây, nước'},
+    {id:'sua-dau-nanh',name:'Sữa Đậu Nành',price:15000,cat:'nuoc-uong',imgLocal:'images/sua-dau-nanh.jpg',desc:'đậu nành, nước'},
+    {id:'sua-bap',name:'Sữa Bắp',price:20000,cat:'nuoc-uong',imgLocal:'images/sua-bap.jpg',desc:'bắp, sữa'},
+    {id:'sua-chua-da',name:'Sữa Chua Đá',price:20000,cat:'nuoc-uong',imgLocal:'images/sua-chua-da.jpg',desc:'sữa chua, đá'}
   ];
+window.MENU = MENU;
 
   const VND = new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'});
 
   // Elements
-  const grid = document.getElementById('menuGrid');
-  const tabs = document.getElementById('tabs');
-  const openBtn = document.getElementById('openCartBtn');
+  const grid = document.getElementById('menuGrid');  const openBtn = document.getElementById('openCartBtn');
   const drawer  = document.getElementById('drawer');
   const overlay = document.getElementById('overlay');
   const totalBox= document.getElementById('totalBox');
-  const cartList= document.getElementById('cartList');
-  const noteEl  = document.getElementById('orderNote');
-  const cartCountEl = document.getElementById('cartCount');
+  const cartList= document.getElementById('cartList');const cartCountEl = document.getElementById('cartCount');
 
   // Helpers
   function imgLocalOnly(src, alt=''){
@@ -261,36 +278,75 @@
     return img;
   }
 
+  
   // Render menu
   let activeCat='all';
-  function renderMenu(){
-    grid.innerHTML='';
-    const items = MENU.filter(m => activeCat==='all' ? true : m.cat===activeCat);
-    items.forEach(m=>{
-      const card=document.createElement('div'); card.className='card';
-      card.appendChild(imgLocalOnly(m.imgLocal, m.name));
-      const pad=document.createElement('div'); pad.className='pad';
-      pad.innerHTML=`
-        <h3 class="name">${m.name}</h3>
-        <div class="row">
-          <span class="price">${VND.format(m.price)}</span>
-          <button class="addBtn" aria-label="Thêm ${m.name} vào giỏ">Đặt</button>
-        </div>`;
-      pad.querySelector('.addBtn').onclick=(e)=>clickAdd(e.currentTarget,m);
-      card.appendChild(pad); grid.appendChild(card);
-    });
-  }
+  
+function renderMenu(){
+  const containers = {
+    'khai-vi': document.getElementById('grid-kv'),
+    'mon-chinh': document.getElementById('grid-mc'),
+    'trang-mieng': document.getElementById('grid-tm'),
+    'nuoc-uong': document.getElementById('grid-nu')
+  };
+  Object.values(containers).forEach(c=>{ if(c) c.innerHTML=''; });
+  MENU.forEach(m=>{
+    const c = containers[m.cat];
+    if(!c) return;
+    const card=document.createElement('div'); card.className='card';
+    card.appendChild(imgLocalOnly(m.imgLocal, m.name));
+    const pad=document.createElement('div'); pad.className='pad';
+    pad.innerHTML=`
+      <h3 class="name">${m.name}</h3>
+      <div class="row">
+        <span class="price">${VND.format(m.price)}</span>
+        <button class="addBtn" aria-label="Thêm ${m.name} vào giỏ">Đặt</button>
+      </div>`;
+    pad.querySelector('.addBtn').onclick=(e)=>clickAdd(e.currentTarget,m);
+    card.appendChild(pad); c.appendChild(card);
+  });
+}
 
-  tabs.addEventListener('click',(e)=>{
-    const t=e.target.closest('.tab'); if(!t) return;
-    tabs.querySelectorAll('.tab').forEach(x=>{x.classList.remove('active'); x.setAttribute('aria-selected','false');});
-    t.classList.add('active'); t.setAttribute('aria-selected','true'); activeCat=t.dataset.cat; renderMenu();
+  
+  // ==== Scrollspy for category bar ====
+  const catbar = document.getElementById('catbar');
+  const links = Array.from(document.querySelectorAll('.catlink'));
+  function setActive(id){
+    links.forEach(l=>l.classList.toggle('active', l.dataset.target===id));
+  }
+  // Smooth scroll on click
+  links.forEach(l=>{
+    l.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const id = l.dataset.target;
+      const sec = document.getElementById(id);
+      if(!sec) return;
+      const y = sec.getBoundingClientRect().top + window.pageYOffset - (catbar?.offsetHeight||0) - 6;
+      window.scrollTo({top:y, behavior:'smooth'});
+      setActive(id);
+      history.replaceState(null, '', '#'+id);
+    });
+  });
+  // Observe sections as they enter viewport
+  const sectionIds = ['khai-vi','mon-chinh','trang-mieng','nuoc-uong'];
+  const observer = new IntersectionObserver((entries)=>{
+    // pick the entry with largest intersection ratio that's intersecting
+    let best = null, score = 0;
+    entries.forEach(en=>{
+      if(!en.isIntersecting) return;
+      if(en.intersectionRatio > score){ score = en.intersectionRatio; best = en.target; }
+    });
+    if(best) setActive(best.id);
+  }, {root:null, rootMargin:'-40% 0px -50% 0px', threshold:[0,0.25,0.5,0.75,1]});
+  sectionIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) observer.observe(el);
   });
 
   // Cart
   let cart = JSON.parse(localStorage.getItem('cart_phoga')||'[]');
   function save(){ localStorage.setItem('cart_phoga',JSON.stringify(cart)); }
-  function addToCart(item){ const f=cart.find(x=>x.id===item.id); if(f) f.qty++; else cart.push({...item,qty:1}); save(); renderCart(); announce(`${item.name} đã được thêm vào giỏ.`); }
+  function addToCart(item){ const f=cart.find(x=>x.id===item.id); if(f) f.qty++; else cart.push({...item,qty:1}); save(); renderCart(); }
   function removeItem(id){ cart=cart.filter(x=>x.id!==id); save(); renderCart(); }
   function clearCart(){ cart=[]; save(); renderCart(); }
   function updateQty(id,qty){ const it=cart.find(x=>x.id===id); if(it){ it.qty=Math.max(1,Number(qty)||1); save(); renderCart(); } }
@@ -300,16 +356,7 @@
     const subtotal=cart.reduce((s,x)=>s+x.price*x.qty,0);
     const ship = subtotal===0 ? 0 : (subtotal>=200000 ? 0 : 15000);
     return {subtotal, ship, grand: subtotal+ship};
-  }
-
-  // aria-live announcer
-  const ariaLive = document.createElement('div');
-  ariaLive.setAttribute('aria-live','polite');
-  ariaLive.className='sr-only';
-  document.body.appendChild(ariaLive);
-  function announce(msg){ ariaLive.textContent=''; setTimeout(()=>ariaLive.textContent=msg, 50); }
-
-  function renderCart(){
+  }function renderCart(){
     if(cart.length===0){ cartList.innerHTML='<div class="empty">Giỏ hàng đang trống.</div>'; }
     else{
       cartList.innerHTML='';
@@ -342,6 +389,11 @@
     document.getElementById('subtotal').textContent=VND.format(t.subtotal);
     document.getElementById('ship').textContent=VND.format(t.ship);
     document.getElementById('grand').textContent=VND.format(t.grand);
+
+    const shipNote = document.getElementById('shipNote');
+    if(shipNote){
+      shipNote.style.display = (t.subtotal >= 200000 ? 'none' : 'block');
+    }
     const count = cart.reduce((s,x)=>s+x.qty,0);
     cartCountEl.textContent = count;
     openBtn.setAttribute('aria-label',`Mở giỏ hàng (${count} món)`);
@@ -379,39 +431,64 @@
 
   // Đặt đơn hàng (mailto + fallback Gmail)
   const EMAIL_TO='vudo805@gmail.com';
-  document.getElementById('checkoutBtn').onclick=()=>{
-    if(cart.length===0){ alert('Giỏ hàng đang trống.'); return; }
-    const t=totals();
-    const lines=cart.map(x=>`- ${x.name} x${x.qty} = ${VND.format(x.price*x.qty)}`).join('\n');
-    const note=(noteEl?.value||'').trim();
-    localStorage.setItem('cart_note_phoga', note);
-    const subject='Đơn hàng mới - Phở Gà Quán';
-    const body=[
-      'Xin chào Phở Gà Quán,','',
-      'Mình muốn đặt:','',lines,'',
-      `Tạm tính: ${VND.format(t.subtotal)}`,
-      `Phí giao: ${VND.format(t.ship)}`,
-      `Tổng cộng: ${VND.format(t.grand)}`,'',
-      'Thông tin giao hàng:',
-      'Họ tên:',
-      'SĐT:',
-      'Địa chỉ:',
-      `Ghi chú: ${note}`,'',
-      'Gửi từ website.'
-    ].join('\n');
-
-    const mailto=`mailto:${encodeURIComponent(EMAIL_TO)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    let opened=false; try{ window.location.href=mailto; opened=true; }catch{ opened=false; }
-    setTimeout(()=>{ if(!opened){ const g=`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(EMAIL_TO)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; window.open(g,'_blank','noopener'); }},300);
-  };
+  document.getElementById('checkoutBtn').onclick = ()=>{
+  try{
+    const cart = JSON.parse(localStorage.getItem('cart_phoga')||'[]');
+    const packed = encodeURIComponent(JSON.stringify(cart));
+    window.location.href = 'order.html#cart=' + packed;
+  }catch{
+    window.location.href = 'order.html';
+  }
+};
 
   // Button effect + chip fly (respect reduced motion)
-  function clickAdd(btn,item){
-    btn.classList.add('adding'); setTimeout(()=>btn.classList.remove('adding'),500);
-    if(!PREFERS_REDUCED_MOTION) flyToCart(btn,item.name);
-    addToCart(item);
+  function clickAdd(btn, item){
+  // Add to cart
+  addToCart(item);
+  btn.classList.add('flash'); setTimeout(()=>btn.classList.remove('flash'),300);
+
+  // Nếu user bật Reduce Motion -> vẫn hiển thị chip nhỏ, bỏ animation nặng
+  if (typeof PREFERS_REDUCED_MOTION !== 'undefined' && PREFERS_REDUCED_MOTION) {
+    try { flyToCart(btn, item.name); } catch(e) {}
+    return;
   }
-  function flyToCart(fromEl,label='1'){
+
+  // Fly product image to cart button
+  try{
+    const imgEl = btn.closest('.card')?.querySelector('img.thumb');
+    if(!imgEl) { flyToCart(btn, item.name); return; }
+    const start = imgEl.getBoundingClientRect();
+    const cartBtn = document.getElementById('openCartBtn');
+    if(!cartBtn) { flyToCart(btn, item.name); return; }
+    const end = cartBtn.getBoundingClientRect();
+    const ghost = imgEl.cloneNode(true);
+    ghost.className = 'fly-img';
+    ghost.style.position = 'fixed';
+    ghost.style.left = start.left + 'px';
+    ghost.style.top = start.top + 'px';
+    ghost.style.width = start.width + 'px';
+    ghost.style.height = start.height + 'px';
+    ghost.style.pointerEvents = 'none';
+    document.body.appendChild(ghost);
+
+    const dx = (end.left + end.width/2) - (start.left + start.width/2);
+    const dy = (end.top + end.height/2) - (start.top + start.height/2);
+
+    const anim = ghost.animate([
+      { transform: 'translate(0,0) scale(1)', opacity: 1 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.15)`, opacity: 0.15 }
+    ], { duration: 800, easing: 'cubic-bezier(.22,.9,.25,1)', fill: 'forwards' });
+
+    // Hiện chip +1 đồng thời
+    try { flyToCart(imgEl, item.name); } catch(e) {}
+
+    anim.onfinish = ()=> ghost.remove();
+  }catch(e){
+    try { flyToCart(btn, item.name); } catch(_) {}
+  }
+}
+
+function flyToCart(fromEl,label='1'){
     const s=fromEl.getBoundingClientRect(), e=openBtn.getBoundingClientRect();
     const chip=document.createElement('div'); chip.className='chip'; chip.textContent=`+1 ${label.split(' ')[0]}`; document.body.appendChild(chip);
     const sx=s.left+s.width/2, sy=s.top+s.height/2, ex=e.left+e.width/2, ey=e.top+e.height/2;
@@ -433,14 +510,93 @@
   window.addEventListener('resize', syncCartPadding);
   window.addEventListener('load', syncCartPadding);
 
-  // Restore saved note
-  const savedNote = localStorage.getItem('cart_note_phoga');
-  if(savedNote) noteEl.value = savedNote;
-
   // Init
   renderMenu();
   renderCart();
 })();
 </script>
+
+<!-- Modal ảnh món ăn -->
+<div id="imgModal" style="position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.6);z-index:1000">
+  <div role="dialog" aria-modal="true" aria-label="Chi tiết món"
+       style="background:#0f172a;color:#e5e7eb;max-width:min(720px,92vw);border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #1f2937">
+      <strong id="mName"></strong>
+      <button id="mClose" class="btn danger" aria-label="Đóng">Đóng</button>
+    </div>
+    <img id="mImg" alt="" style="width:100%;height:340px;object-fit:cover;background:#0b0b0b" />
+    <div style="padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span id="mPrice" style="font-weight:700"></span>
+        <button id="mAdd" class="btn primary">Đặt món</button>
+      </div>
+      <div id="mDesc" style="color:#9aa0a6"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Gắn click vào ảnh để mở modal chi tiết
+function bindImageClicks(){
+  document.querySelectorAll('.card .thumb').forEach(img=>{
+    if (img.dataset.bound === '1') return;
+    img.dataset.bound = '1';
+    img.style.cursor='zoom-in';
+    img.addEventListener('click', ()=>{
+      const card = img.closest('.card');
+      const name = card?.querySelector('.name')?.textContent || '';
+      const price = card?.querySelector('.price')?.textContent || '';
+      const addBtn = card?.querySelector('.addBtn');
+      const m = document.getElementById('imgModal');
+      const mName = document.getElementById('mName');
+      const mImg = document.getElementById('mImg');
+      const mPrice = document.getElementById('mPrice');
+      const mDesc = document.getElementById('mDesc');
+      const mAdd = document.getElementById('mAdd');
+      mName.textContent = name;
+      mImg.src = img.currentSrc || img.src;
+      mImg.alt = name;
+      mPrice.textContent = price || '';
+      mDesc.textContent = 'Thành phần: ' + ((window.MENU||[]).find(x=>x.name===name)?.desc || 'chưa có thông tin');
+      m.style.display = 'grid';
+      m.dataset.open = '1';
+      // Đặt món từ modal
+      mAdd.onclick = ()=> addBtn?.click();
+      document.getElementById('mClose').focus();
+    });
+  });
+}
+
+// Đóng modal
+(function(){
+  const m = document.getElementById('imgModal');
+  if (!m) return;
+  const closeBtn = document.getElementById('mClose');
+  function close(){ m.style.display='none'; m.dataset.open=''; }
+  closeBtn?.addEventListener('click', close);
+  m.addEventListener('click', (e)=>{ if(e.target===m) close(); });
+  window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && m.dataset.open==='1') close(); });
+
+  // Tự gắn lại khi DOM thay đổi (menu render lại)
+  const obs = new MutationObserver(()=>bindImageClicks());
+  obs.observe(document.body, { childList:true, subtree:true });
+  // Lần đầu
+  if (document.readyState !== 'loading') bindImageClicks();
+  else document.addEventListener('DOMContentLoaded', bindImageClicks);
+})();
+</script>
+
+<script>
+(function(){
+  const a = document.getElementById('privacyLink');
+  if(!a) return;
+  a.addEventListener('click', function(e){
+    // Nếu có JS nào chặn mặc định, ta vẫn điều hướng
+    try{ e.preventDefault(); }catch(_){}
+    window.location.assign('privacy_policy.html');
+  });
+})();
+</script>
+
 </body>
 </html>
